@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player and Chatbot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 2px;
+            width: 100%;
+            text-align:start;
+            
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #content-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            max-width: 1200px;
+            margin-top: 30px;
+            flex-grow: 1;
+        }
+
+        #video-container, #chat-container {
+            width: 100%;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #chat-output {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        #chat-input {
+            width: calc(100% - 100px);
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        #send-btn {
+            padding: 12px 20px;
+            border: none;
+            background-color: #007BFF;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        footer {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 2px; /* Increased padding */
+            width: 100%;
+            text-align: center;
+            font-size: 18px; /* Increased font size */
+            height: 100px; /* Set a specific height */
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        header{
+            
+             
+        }
+        header h1{
+            color:#dadada;
+            margin-left: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 >Doubts</h1>
+    </header>
+
+    <div id="content-container">
+        <div id="video-container">
+            <h2>Video</h2>
+            <video controls>
+                <source src="sample-video.mp4" type="video/mp4" >
+                Your browser does not support the video tag.
+            </video>
+        </div>
+      
+        <div id="chat-container">
+            <h2><i>CHAT WITH AI ASSISTANCE?</i></h2>
+            <div id="chat-output"></div>
+            <div style="display: flex;">
+                <input type="text" id="chat-input" placeholder="ask your doubts here?">
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Interactive Learning Platform</p>
+    </footer>
+
+    <script>
+        const chatOutput = document.getElementById('chat-output');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const serverUrl = 'http://127.0.0.1:5200/predict';
+    
+        sendBtn.addEventListener('click', async () => {
+            const userMessage = chatInput.value.trim();
+            if (userMessage) {
+                const userMessageElem = document.createElement('div');
+                userMessageElem.textContent = `You: ${userMessage}`;
+                chatOutput.appendChild(userMessageElem);
+    
+                try {
+                    // Send the user message to the Colab server
+                    const response = await fetch(serverUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: userMessage }),
+                    });
+    
+                    // Get the bot's response
+                    const data = await response.json();
+                    const botResponse = data.result || "I'm here to help!"; // Adjust according to your response format
+    
+                    const botResponseElem = document.createElement('div');
+                    botResponseElem.textContent = `Bot: ${botResponse}`;
+                    botResponseElem.style.marginTop = '10px';
+                    botResponseElem.style.color = '#007BFF';
+                    chatOutput.appendChild(botResponseElem);
+                } catch (error) {
+                    console.error('Error:', error);
+                    const botResponseElem = document.createElement('div');
+                    botResponseElem.textContent = `Bot: Sorry, there was an error.`;
+                    botResponseElem.style.marginTop = '10px';
+                    botResponseElem.style.color = '#007BFF';
+                    chatOutput.appendChild(botResponseElem);
+                }
+    
+                chatInput.value = '';
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+            }
+        });
+    
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+    
+
+</body>
+</html>
